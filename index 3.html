@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Junior Astronaut Mission Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0a1230;--card:#14214d;--card2:#1c2d66;--ink:#eef3ff;--mute:#9db0e0;--cy:#5ce1ff;--or:#ff9f43;--gr:#4ade80;--rd:#ff6b81;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;color:var(--ink);font:500 18px/1.5 Nunito,system-ui,sans-serif;background:radial-gradient(1.5px 1.5px at 12% 18%,#fff 50%,transparent),radial-gradient(1px 1px at 78% 12%,#fff 50%,transparent),radial-gradient(1.5px 1.5px at 40% 70%,#cfe 50%,transparent),radial-gradient(1px 1px at 90% 80%,#fff 50%,transparent),radial-gradient(1px 1px at 22% 88%,#fff 50%,transparent),radial-gradient(ellipse at 50% 120%,#2b2a6e,var(--bg) 60%) var(--bg)}
+main{max-width:660px;margin:0 auto;padding:16px}
+h1,h2,h3{font-family:"Baloo 2",system-ui,sans-serif;line-height:1.15;margin:0 0 8px}
+h1{font-size:clamp(2.2rem,8vw,3.2rem);font-weight:800}
+h2{font-size:1.7rem;font-weight:800}
+h3{font-size:1.2rem;font-weight:600;color:var(--cy)}
+.hud{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap}
+.rank{background:var(--card2);border-radius:99px;padding:4px 14px;font-weight:700;color:var(--or)}
+.dots{display:flex;gap:6px}.dot{width:26px;height:10px;border-radius:9px;background:var(--card2)}.dot.on{background:var(--gr)}.dot.cur{background:var(--cy)}
+.card{background:var(--card);border-radius:22px;padding:22px;border:2px solid var(--card2)}
+p{margin:0 0 12px}
+.big{font-size:3.2rem;line-height:1}
+.btn{font:700 1.05rem "Baloo 2",system-ui,sans-serif;background:var(--or);color:#1a1200;border:0;border-radius:14px;padding:12px 22px;cursor:pointer;margin-top:6px;min-height:48px}
+.btn:hover{filter:brightness(1.08)}.btn.alt{background:var(--card2);color:var(--ink)}
+.opt{display:block;width:100%;text-align:left;font:700 1rem Nunito,sans-serif;background:var(--card2);color:var(--ink);border:2px solid transparent;border-radius:14px;padding:12px 16px;margin:8px 0;cursor:pointer;min-height:48px}
+.opt:hover:not(:disabled){border-color:var(--cy)}
+.opt.ok{background:#14532d;border-color:var(--gr)}.opt.no{background:#5b1d2b;border-color:var(--rd);opacity:.7}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.fb{margin-top:10px;padding:10px 14px;border-radius:12px;background:#0d1840;border-left:5px solid var(--cy)}
+.fb.ok{border-color:var(--gr)}.fb.no{border-color:var(--rd)}
+.bar{position:relative;height:34px;background:#0d1840;border-radius:99px;overflow:hidden;margin:14px 0;border:2px solid var(--card2)}
+.zone{position:absolute;top:0;bottom:0;left:65%;width:20%;background:repeating-linear-gradient(45deg,#2f8f56,#2f8f56 8px,#3fb96e 8px,#3fb96e 16px)}
+.fill{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,var(--cy),#7b8cff);opacity:.85}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{font:700 .95rem Nunito,sans-serif;background:var(--card2);color:var(--ink);border:2px solid transparent;border-radius:12px;padding:10px;cursor:pointer;min-height:64px}
+.tile.sel{border-color:var(--cy)}.tile.done{background:#14532d;border-color:var(--gr);cursor:default}
+.clue{background:#0d1840;border-radius:14px;padding:10px 14px;margin:8px 0}
+.clue b{color:var(--cy)}
+input{font:700 1.4rem "Baloo 2",sans-serif;text-align:center;width:100%;padding:10px;border-radius:14px;border:2px solid var(--card2);background:#0d1840;color:var(--ink);letter-spacing:.5em}
+input.name{letter-spacing:normal;font-size:1.1rem;margin:8px 0}
+.cert{border:4px double var(--or);border-radius:18px;padding:22px 14px;text-align:center;background:#0d1840}
+.shake{animation:sh .3s}@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+button:focus-visible,input:focus-visible{outline:3px solid var(--cy);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+.arena{position:relative;height:280px;overflow:hidden;background:#0d1840;border-radius:16px;border:2px solid var(--card2);touch-action:manipulation}
+.item{position:absolute;top:-50px;font-size:2.4rem;background:none;border:0;cursor:pointer;padding:4px;animation:fall 4s linear forwards}
+@keyframes fall{to{top:290px}}
+.tile.mem{min-height:84px;font-size:.82rem}.tile.hot{min-height:110px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+var RANKS=["Space Cadet","Trainee","Explorer","Flight Specialist","Mission Specialist","Senior Specialist","ASTRONAUT"];
+var M=[
+{n:"Space Body",e:"💪",t:"No gravity? Your core keeps you steady. Train your body, then fuel up like a rocket!",s:[{k:"plank"},{k:"crunch"},{k:"fuel"},{k:"quiz",q:"Why do astronauts need a strong core in space?",o:["To stay balanced with no gravity","To carry the rocket","To run faster"],f:"Right! With no gravity, a strong core keeps you balanced."},{k:"quiz",q:"Which exercise builds your abs by lifting and lowering your upper body with control?",o:["Commander Crunch","Pilot Plank"],f:"Commander Crunch builds steel-like abs. Pilot Plank works shoulders, core and legs."}]},
+{n:"Mission Academy",e:"🎓",t:"Unlock your superpowers on Earth before launch. Flip the cards and find the matching pairs!",s:[{k:"memory"},{k:"quiz",q:"Which two languages do astronauts use to talk with the ISS crew and Mission Control?",o:["English and Russian","English and French","Russian and Chinese"],f:"English and Russian keep the crew connected."},{k:"quiz",q:"Why do astronauts practice scuba diving?",o:["To train for spacewalks","To find water on Mars"],f:"Scuba diving trains astronauts for spacewalks."}]},
+{n:"Life on the ISS",e:"🛰️",t:"Explore the space station! Tap each object and make the right choice.",s:[{k:"iss"},{k:"quiz",q:"Why are astronaut sleeping bags strapped to the walls?",o:["So they don’t float around and bump into things","To keep them warm"],f:"Strapped down, astronauts stay put while they sleep."},{k:"quiz",q:"How long must astronauts work out every single day?",o:["2 hours","30 minutes","5 hours"],f:"2 hours a day keeps muscles and bones from weakening."}]},
+{n:"Command & Support",e:"🧑‍🚀",t:"In a crisis, know when to lead and when to follow. You have 6 seconds for each decision!",s:[{k:"crisis"},{k:"quiz",q:"The Commander gives clear instructions during a system failure. What does a reliable teammate do?",o:["Follows the instructions","Ignores them and does something else"],f:"A reliable teammate follows instructions when someone else is leading."}]},
+{n:"Radio Team Puzzle",e:"📡",t:"Life support is failing! Tune the radio, collect every crewmate’s clue and send the repair code.",s:[{k:"radio"},{k:"quiz",q:"Why do astronauts keep their communication clear and precise?",o:["To keep the mission safe","To talk faster"],f:"Clear, precise communication ensures mission safety."}]},
+{n:"Start Your Journey",e:"🌟",t:"You don’t need a rocket to start! Choose the habits that train you like a real astronaut.",s:[{k:"habits"},{k:"quiz",q:"What can you use to explore the night sky for free?",o:["Stargazing apps","A rocket ship"],f:"Free stargazing apps help you spot the Moon, planets and stars!"}]}
+];
+var S={name:"",m:0,i:0,stars:0,first:true,scr:"home"};
+var app=document.getElementById("app");
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function hud(){var d="";for(var i=0;i<M.length;i++)d+='<div class="dot '+(i<S.m?"on":i==S.m&&S.scr!="home"?"cur":"")+'"></div>';
+ return '<div class="hud"><span class="rank">🏅 '+RANKS[Math.min(S.m,M.length)]+'</span><div class="dots" aria-label="Mission progress">'+d+'</div><span>⭐ '+S.stars+'</span></div>'}
+function show(x){app.innerHTML=(S.scr=="home"?"":hud())+'<div class="card">'+x+'</div>';var f=app.querySelector("input");if(f&&S.scr=="step")f.focus()}
+function home(){S.scr="home";
+ show('<div class="big">🚀</div><h1>Junior Astronaut Mission Trainer</h1><p>Finish 6 training missions to become a real astronaut. Wrong answer? No problem, you get a hint and try again!</p><label for="nm">Your astronaut name:</label><input class="name" id="nm" maxlength="20" placeholder="Type your name" value="'+S.name+'"><button class="btn" id="go">Start training</button>');
+ document.getElementById("go").onclick=function(){S.name=(document.getElementById("nm").value||"Cadet").trim()||"Cadet";S.m=0;S.i=0;S.stars=0;brief()}}
+function brief(){S.scr="brief";var m=M[S.m];
+ show('<div class="big">'+m.e+'</div><h3>Mission '+(S.m+1)+' of '+M.length+'</h3><h2>'+m.n+'</h2><p>'+m.t+'</p><button class="btn" id="go">Begin mission</button>');
+ document.getElementById("go").onclick=function(){S.i=0;step()}}
+function nextStep(){S.i++;if(S.i>=M[S.m].s.length)clear();else step()}
+function clear(){S.scr="clear";var m=M[S.m];S.m++;
+ var last=S.m>=M.length;
+ show('<div class="big">🎉</div><h2>Mission complete!</h2><p>You finished <b>'+m.n+'</b>. New rank: <b style="color:var(--or)">'+RANKS[S.m]+'</b></p><button class="btn" id="go">'+(last?"Get my certificate":"Next mission")+'</button>');
+ document.getElementById("go").onclick=last?cert:brief}
+function cert(){S.scr="cert";S.m=M.length;
+ show('<div class="cert"><div class="big">🧑‍🚀</div><h3>Official Mission Certificate</h3><h1>'+esc(S.name)+'</h1><p>has passed all '+M.length+' training missions and is now a</p><h2 style="color:var(--or)">Certified Junior Astronaut</h2><p>⭐ '+S.stars+' stars collected</p></div><div class="row" style="margin-top:12px"><button class="btn" onclick="window.print()">Print certificate</button><button class="btn alt" id="again">Play again</button></div>');
+ document.getElementById("again").onclick=home}
+function esc(s){return s.replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function fb(ok,t){var e=document.getElementById("fb");e.hidden=false;e.className="fb "+(ok?"ok":"no");e.innerHTML=t;if(!ok){var c=app.querySelector(".card");c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake")}}
+function win(t){S.first=S.first;fb(true,"✅ "+t+'<br><button class="btn" id="nx">Continue</button>');document.getElementById("nx").onclick=nextStep;var n=document.getElementById("nx");n.focus();if(S.first)S.stars++;}
+function step(){S.scr="step";S.first=true;var s=M[S.m].s[S.i],m=M[S.m];
+ var H='<h3>'+m.e+' '+m.n+'</h3>',FB='<div id="fb" class="fb" hidden></div>';
+ ({quiz:quiz,crunch:crunch,habits:habits,plank:plank,fuel:fuel,memory:memory,iss:iss,crisis:crisis,radio:radio})[s.k](H,FB,s)}
+function quiz(H,FB,s){var o=shuf(s.o.map(function(t,i){return{t:t,i:i}}));
+ show(H+'<h3>🧠 Quick check</h3><h2>'+s.q+'</h2>'+o.map(function(x){return'<button class="opt" data-i="'+x.i+'">'+x.t+'</button>'}).join("")+FB);
+ app.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){if(b.dataset.i=="0"){b.classList.add("ok");app.querySelectorAll(".opt").forEach(function(x){x.disabled=true});win(s.f)}else{S.first=false;b.classList.add("no");b.disabled=true;fb(false,"Not quite. Think about what you learned and try again!")}}})}
+function crunch(H,FB){var n=0,want="up",last=0;
+ show(H+'<h2>Commander Crunch</h2><p>Lift and lower your upper body with control. Tap <b>Lift</b>, then <b>Lower</b>. Go slowly! Do 6 reps.</p><div class="bar"><div class="fill" id="cr"></div></div><div class="row"><button class="btn" id="up">⬆ Lift</button><button class="btn alt" id="dn">⬇ Lower</button></div>'+FB);
+ function t(v){var now=performance.now();if(v!=want){S.first=false;fb(false,"Wrong move! Lift first, then lower.");return}
+  if(now-last<600){S.first=false;fb(false,"Too fast! Control matters more than speed.");return}
+  last=now;$("fb").hidden=true;want=v=="up"?"down":"up";if(v=="down"){n++;$("cr").style.width=n*100/6+"%";if(n>=6)win("Steel-strong abs! Commander Crunch builds your core with control.")}}
+ $("up").onclick=function(){t("up")};$("dn").onclick=function(){t("down")}}
+function habits(H,FB){var G=["🔭 Stargaze at night","🧩 Solve puzzles","🏃 Stay active","🤝 Be a great teammate","💡 Keep asking “Why?”"],B=["🛋️ Sit still all day","🙈 Never listen to others","🚫 Stop asking questions"],got=0;
+ var L=shuf(G.map(function(t){return{t:t,g:1}}).concat(B.map(function(t){return{t:t,g:0}})));
+ show(H+'<h2>Start your astronaut journey</h2><p>Tap the 5 habits that real astronauts-in-training practice!</p><div class="grid">'+L.map(function(x,i){return'<button class="tile" data-i="'+i+'">'+x.t+'</button>'}).join("")+'</div>'+FB);
+ app.querySelectorAll(".tile").forEach(function(b){b.onclick=function(){var x=L[b.dataset.i];if(b.classList.contains("done"))return;
+  if(x.g){b.classList.add("done");got++;if(got==5)win("Every astronaut in space today was once a curious kid just like you. Your journey starts now!");else fb(true,"✅ Great habit! "+(5-got)+" to go.")}else{S.first=false;b.disabled=true;b.style.opacity=.4;fb(false,"That’s not an astronaut habit. Keep looking!")}}})}
+function $(i){return document.getElementById(i)}
+function plank(H,FB){var run=false,t0=0,raf;
+ show(H+'<h2>Pilot Plank challenge</h2><p>Tap <b>Start</b>, then tap <b>Stop</b> when the bar is inside the green zone. Hold your plank steady!</p><div class="bar"><div class="zone"></div><div class="fill" id="fl"></div></div><button class="btn" id="pb">Start plank</button>'+FB);
+ var fl=$("fl"),pb=$("pb");
+ function tick(){var p=Math.min(100,(performance.now()-t0)/25);fl.style.width=p+"%";if(p<100&&run)raf=requestAnimationFrame(tick);else if(run)stop()}
+ function stop(){run=false;cancelAnimationFrame(raf);var p=parseFloat(fl.style.width)||0;pb.textContent="Try again";
+  if(p>=65&&p<=85){pb.hidden=true;win("Perfect plank! Pilot Plank trains your shoulders, core and legs all at once.")}else{S.first=false;fb(false,p<65?"Too early! Hold a little longer.":"Too long! Stop sooner next time.")}}
+ pb.onclick=function(){if(!run){run=true;t0=performance.now();$("fb").hidden=true;pb.textContent="Stop!";tick()}else stop()}}
+function fuel(H,FB){var en=0,iv,G=["🍎","🥦","💧","🥕","🍌","🥛"],B=["🍬","🍩","🍟","🥤"];
+ show(H+'<h2>Fuel up like a rocket!</h2><p>Tap healthy food and water. Avoid the sugary snacks!</p><div class="bar"><div class="fill" id="en"></div></div><div class="arena" id="ar"></div>'+FB);
+ function sp(){var ar=$("ar");if(!ar){clearInterval(iv);return}var good=Math.random()<.7,L=good?G:B,b=document.createElement("button");
+  b.className="item";b.textContent=L[Math.floor(Math.random()*L.length)];b.style.left=Math.random()*80+"%";b.setAttribute("aria-label",good?"healthy food":"sugary snack");
+  b.onclick=function(){b.remove();if(good)en++;else{en=Math.max(0,en-1);S.first=false}$("en").style.width=en*10+"%";
+   if(en>=10){clearInterval(iv);ar.innerHTML="";win("Tank full! A balanced diet and plenty of water keep astronauts strong all day. Set your own daily fitness goals too!")}};
+  b.addEventListener("animationend",function(){b.remove()});ar.appendChild(b)}
+ iv=setInterval(sp,600);sp()}
+function memory(H,FB){var P=[["🔬 STEM","Calculate rocket paths and build space stations"],["🌍 Earth & Space Science","Find water on Mars, explore Moon craters"],["🗣️ Mission Languages","Talk clearly with the crew and Mission Control"],["🤿 Survival & Teamwork","Scuba train, stay calm, build team spirit"]],C=[],open=[],left=4,lock=false;
+ P.forEach(function(p,i){C.push({i:i,t:p[0]});C.push({i:i,t:p[1]})});C=shuf(C);
+ show(H+'<h2>Superpower memory</h2><p>Match each subject to its superpower.</p><div class="grid">'+C.map(function(c,j){return'<button class="tile mem" data-j="'+j+'">❓</button>'}).join("")+'</div>'+FB);
+ app.querySelectorAll(".mem").forEach(function(b){b.onclick=function(){var c=C[b.dataset.j];if(lock||b.classList.contains("done")||open.indexOf(b)>-1)return;b.textContent=c.t;b.classList.add("sel");open.push(b);
+  if(open.length<2)return;var a=C[open[0].dataset.j];
+  if(a.i==c.i){open.forEach(function(x){x.classList.remove("sel");x.classList.add("done")});open=[];left--;if(!left)win("All superpowers unlocked! You are ready for Earth training.");else fb(true,"Match! "+left+" pairs to go.")}
+  else{S.first=false;lock=true;setTimeout(function(){open.forEach(function(x){x.textContent="❓";x.classList.remove("sel")});open=[];lock=false},900)}}})}
+function iss(H,FB){var D=[{e:"🛌",n:"Bunk",q:"Bedtime! How do astronauts sleep?",o:["In a sleeping bag strapped to the wall","In a floating bed"],f:"Strapped down, they don’t float around and bump into things!"},
+ {e:"🍕",n:"Kitchen",q:"Dinner time! How do astronauts eat?",o:["Freeze-dried or thermostabilized meals from pouches, with straws for drinks","From open plates"],f:"No open plates or crumbs allowed!"},
+ {e:"🏋️",n:"Gym",q:"Workout time! How long every day?",o:["2 hours on special machines","10 minutes"],f:"It stops muscles and bones from weakening in microgravity."},
+ {e:"📡",n:"Radio",q:"Call home! How do astronauts talk to Earth?",o:["Satellite systems and video calls","Letters"],f:"They talk to Mission Control, scientists and even their families."}],d=0;
+ show(H+'<h2>Explore the ISS!</h2><div class="grid">'+D.map(function(x,i){return'<button class="tile hot" data-i="'+i+'"><span class="big">'+x.e+'</span><br>'+x.n+'</button>'}).join("")+'</div><div id="q"></div>'+FB);
+ app.querySelectorAll(".hot").forEach(function(t){t.onclick=function(){var x=D[t.dataset.i];if(t.classList.contains("done"))return;$("fb").hidden=true;
+  $("q").innerHTML='<h3 style="margin-top:12px">'+x.q+'</h3>'+shuf([0,1]).map(function(k){return'<button class="opt" data-k="'+k+'">'+x.o[k]+'</button>'}).join("");
+  $("q").querySelectorAll(".opt").forEach(function(o){o.onclick=function(){if(o.dataset.k=="0"){t.classList.add("done");d++;$("q").innerHTML="";if(d==4)win("All 4 secrets found! "+x.f+" You know life on the ISS.");else fb(true,"✅ "+x.f)}else{S.first=false;o.classList.add("no");o.disabled=true;fb(false,"Not quite. Try the other one!")}}})}})}
+function crisis(H,FB){var R=[["🚨 System failure! The Commander shouts: “Everyone to your stations!”","f"],["⚠️ Alarm! The Commander is busy and nobody is giving instructions.","l"],["🔧 The Commander gives a clear repair order.","f"],["💥 The Commander’s radio is out and the crew is waiting.","l"],["🛠️ The Commander assigns you a repair task during the failure.","f"],["🔴 The Commander is fixing the main system. Someone must organize the rest of the crew.","l"]],r=0,rep=0,tm,live=true;
+ show(H+'<h2>Crisis simulator</h2><div class="bar"><div class="fill" id="rp" style="background:var(--gr)"></div></div><div class="clue" id="sc"></div><div class="bar" style="height:12px"><div class="fill" id="tb" style="background:var(--or);width:100%"></div></div><div class="row"><button class="btn" id="bl">👑 Lead</button><button class="btn alt" id="bf">🤝 Follow</button></div>'+FB);
+ function go(){if(!$("sc"))return;$("sc").textContent=R[r][0];var t=$("tb");t.style.transition="none";t.style.width="100%";setTimeout(function(){t.style.transition="width 6s linear";t.style.width="0"},40);clearTimeout(tm);
+  tm=setTimeout(function(){if(!$("sc"))return;S.first=false;fb(false,"Too slow! The crew counts on quick decisions.");setTimeout(go,1200)},6040)}
+ function ch(v){if(!live)return;clearTimeout(tm);if(v==R[r][1]){rep++;$("rp").style.width=rep*100/R.length+"%";r++;if(r>=R.length){live=false;$("tb").style.transition="none";win("Systems repaired! A great astronaut leads when needed and follows when the Commander is in charge.")}else{fb(true,"✅ Good call!");setTimeout(go,1000)}}
+  else{S.first=false;fb(false,"Think: is someone already giving orders?");setTimeout(go,1300)}}
+ $("bl").onclick=function(){ch("l")};$("bf").onclick=function(){ch("f")};go()}
+function radio(H,FB){var C=[["📻 Mission Control","Digit 1 = hours astronauts exercise every day."],["🔧 Flight Engineer","Digit 2 = languages used by the ISS crew (Mission Academy)."],["🩺 Crew Doctor","Digit 3 = superpower areas in Mission Academy."]],got=0;
+ show(H+'<h2>Repair the life-support system</h2><p>Tap each channel to hear a clue. Then send the 3-digit code.</p><div id="cl"></div><div class="row">'+C.map(function(c,i){return'<button class="btn alt" data-i="'+i+'">'+c[0]+'</button>'}).join("")+'</div><label for="cd" style="display:block;margin-top:14px">Type the code and say “Copy that!”</label><input id="cd" inputmode="numeric" maxlength="3" placeholder="___"><button class="btn" id="ck">Send code</button> <button class="btn alt" id="hn">Hint</button>'+FB);
+ app.querySelectorAll("[data-i]").forEach(function(b){b.onclick=function(){var c=C[b.dataset.i];if(b.dataset.on)return;b.dataset.on=1;$("cl").innerHTML+='<div class="clue"><b>'+c[0]+':</b> “'+c[1]+'”</div>'}});
+ $("ck").onclick=function(){if($("cd").value.trim()=="224")win("Systems online! Clear radio communication keeps the mission safe. Copy that!");else{S.first=false;fb(false,"Code rejected. Did you collect all 3 clues?")}};
+ $("hn").onclick=function(){S.first=false;fb(false,"Hint: 2 hours of exercise. English and Russian. STEM, Earth & Space, Languages, Survival.")}}
+home();
+</script>
+</body>
+</html>
